@@ -235,16 +235,4 @@ class NormalizingData:
                 db.conn.rollback()
                 return
         
-
-if __name__ == "__main__":
-    # Criando as dimensões para o fato de obesidade
-
-    NormalizingData().create_dimension_demografia()
-    NormalizingData().create_dimension_compalimentar()
-    NormalizingData().create_dimension_atividade_fisica()
-    NormalizingData().create_dimension_estilo_vida()
-
-    # Criando o fato de obesidade
-    NormalizingData().create_fact_obesidade()
-        
         

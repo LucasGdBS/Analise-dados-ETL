@@ -47,7 +47,3 @@ def insert_data_from_csv(csv_file_path):
             except Exception as e:
                 print(f"Erro ao inserir dados: {e}")
                 db.conn.rollback() 
-
-if __name__ == "__main__":
-    create_table_on_db("infra/configs/create_table.sql")
-    insert_data_from_csv("data/ObesityDataSet_raw_and_data_sinthetic.csv")
