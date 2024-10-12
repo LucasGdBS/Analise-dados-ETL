@@ -176,7 +176,8 @@ class NormalizingData:
                         demografia_id INTEGER REFERENCES demografia(id),
                         comportamento_alimentar_id INTEGER REFERENCES compalimentar(id),
                         atividade_fisica_id INTEGER REFERENCES atividade_fisica(id),
-                        estilo_de_vida_id INTEGER REFERENCES estilo_vida(id)
+                        estilo_de_vida_id INTEGER REFERENCES estilo_vida(id),
+                        nobeyesdad VARCHAR(50) NOT NULL
                     );
                     """
                 )
@@ -190,32 +191,42 @@ class NormalizingData:
             try:               
                 db.cur.execute(
                     """
-                    INSERT INTO obesidade (weight, height, demografia_id, comportamento_alimentar_id, atividade_fisica_id, estilo_de_vida_id)
-                    SELECT 
-                        weight,
-                        height,
+                    INSERT INTO obesidade (weight, height, demografia_id, comportamento_alimentar_id, atividade_fisica_id, estilo_de_vida_id, nobeyesdad)
+                    SELECT
+                        r.weight,
+                        r.height,
                         d.id AS demografia_id,
                         c.id AS comportamento_alimentar_id,
                         a.id AS atividade_fisica_id,
-                        e.id AS estilo_de_vida_id
-                    FROM data_raw r
-                    LEFT JOIN demografia d ON r.gender = d.gender AND r.age = d.age
-                    LEFT JOIN compalimentar c ON 
-                        CASE 
-                            WHEN r.favc = 'yes' THEN TRUE 
-                            WHEN r.favc = 'no' THEN FALSE 
-                            ELSE NULL 
-                        END = c.favc 
-                    LEFT JOIN atividade_fisica a ON r.faf = a.faf AND r.ch2o = a.ch2o
-                    LEFT JOIN estilo_vida e ON 
-                        (CASE 
-                            WHEN r.smoke = 'yes' THEN TRUE 
-                            WHEN r.smoke = 'no' THEN FALSE 
-                            ELSE NULL 
-                        END) = e.smoke AND 
-                        r.calc = e.calc AND 
-                        r.mtrans = e.mtrans
-
+                        e.id AS estilo_de_vida_id,
+                        r.nobeyesdad
+                    FROM
+                        data_raw r
+                    LEFT JOIN demografia d
+                        ON r.gender = d.gender
+                        AND r.age = d.age
+                        AND CASE 
+                            WHEN r.family_history_with_overweight = 'yes' THEN TRUE
+                            WHEN r.family_history_with_overweight = 'no' THEN FALSE
+                            ELSE NULL
+                        END = d.family_history_with_overweight
+                    LEFT JOIN compalimentar c
+                        ON CASE
+                            WHEN r.favc = 'yes' THEN TRUE
+                            WHEN r.favc = 'no' THEN FALSE
+                        END = c.favc
+                        AND r.fcvc = c.fcvc
+                    LEFT JOIN atividade_fisica a
+                        ON r.faf = a.faf
+                        AND r.ch2o = a.ch2o
+                    LEFT JOIN estilo_vida e
+                        ON CASE
+                            WHEN r.smoke = 'yes' THEN TRUE
+                            WHEN r.smoke = 'no' THEN FALSE
+                        END = e.smoke
+                        AND r.calc = e.calc
+                        AND r.mtrans = e.mtrans
+                    ON CONFLICT DO NOTHING;
                     """
                 )
                 print("Dados inseridos com sucesso na tabela obesidade!")

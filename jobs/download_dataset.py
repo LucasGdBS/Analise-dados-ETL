@@ -22,6 +22,7 @@ try:
     df = pd.read_csv(f'{desired_path}/{file}') # Faz a leitura do dataset
     df.columns = [col.lower().replace(" ", "").replace("(", "_").replace(")", "").replace("/", "_") for col in df.columns] # Renomeia as colunas tirando caracteres especiais e espaços
     # TODO: Limpar os dados antes de fazer a inserção no banco de dados
+    # TODO: Tem alguns numeros com mutias casas decimais, arredondar para 2 casas decimais
     
     df.to_csv(f'{desired_path}/{file}', index=False)
     print("Colunas renomeadas com sucesso!")
