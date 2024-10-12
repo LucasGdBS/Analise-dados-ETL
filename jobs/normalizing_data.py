@@ -188,7 +188,9 @@ class NormalizingData:
                 return
         
         with DBConnectionHandler() as db:
-            try:               
+            try:
+                db.cur.execute("TRUNCATE TABLE obesidade;")
+
                 db.cur.execute(
                     """
                     INSERT INTO obesidade (weight, height, demografia_id, comportamento_alimentar_id, atividade_fisica_id, estilo_de_vida_id, nobeyesdad)
