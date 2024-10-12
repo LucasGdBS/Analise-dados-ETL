@@ -9,13 +9,17 @@ class DBConnectionHandler:
     def __create_database_engine(self):
         '''Método usado para criar a conexão do nosso código com o banco'''
         conn = psycopg2.connect(
-            dbname=env("DB_NAME"),
+            dbname=env("DB_NAMED"),
             user=env("DB_USER"),
             password=env("DB_PASSWORD"),
             host=env("DB_HOST"),
             port=env("DB_PORT")
         )
         return conn
+    
+    def get_conn(self):
+        '''Método para retornar a conexão com o banco'''
+        return self.conn
 
     def __enter__(self):
         '''Método mágico que é executado ao entrar em um bloco with'''
