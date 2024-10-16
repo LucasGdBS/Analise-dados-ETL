@@ -1,5 +1,3 @@
-version: '2.29.6'
-
 services:
   # Panco que será usado pelo metabase
   db_metabase:
@@ -29,6 +27,40 @@ services:
     networks:
       - metabase_network
 
+  db_airflow:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: airflow_user
+      POSTGRES_PASSWORD: airflow_password
+      POSTGRES_DB: airflow_db
+    ports:
+      - "54323:5432"  # Porta do Banco do Airflow
+    volumes:
+      - db_airflow_data:/var/lib/postgresql/data
+    networks:
+      - metabase_network
+    
+  airflow:
+    image: apache/airflow:2.7.0
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow_user:airflow_password@db_airflow/airflow_db
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    volumes:
+      - ./dags:/opt/airflow/dags
+    depends_on:
+      - db_airflow
+    ports:
+      - "8080:8080"
+    command: >
+      bash -c "
+      airflow db upgrade &&
+      airflow scheduler &
+      airflow webserver"
+    networks:
+      - metabase_network
+
+
   metabase:
     image: metabase/metabase:latest
     ports:
@@ -49,3 +81,4 @@ networks:
 volumes:
   db_metabase_data:
   db_analysis_data:
+  db_airflow_data:
